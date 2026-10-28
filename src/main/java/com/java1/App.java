@@ -2,21 +2,25 @@ package com.java1;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class App 
 {
     public static void main( String[] args )
     {
 
-        Employee andi = new Employee("KR001", "Andi", 7000000);
-        Employee budi = new Employee("KR002", "Budi", 5000000);
-        Employee citra = new Employee("KR003", "Citra", 6000000);
+        Employee andi = new Employee("KR001", "Andi", 750_000);
+        Employee budi = new Employee("KR002", "Budi", 500_000);
+        Employee citra = new Employee("KR003", "Citra", 300_000);
         
         List<Employee> employees = new ArrayList<>();
 
@@ -24,55 +28,40 @@ public class App
         employees.add(budi);
         employees.add(citra);
 
-        System.out.println("(List) Employee List: \n");        
+        System.out.println("\nACTIVE QUERY\n");
 
-        for (Employee employee: employees) {
-            System.out.println(employee.getEmployeeID() + " - " + employee.getName() + " - " +employee.getSalary());
-        }
+        List<Employee> bigSalarEmployees = employees.stream().filter(account->account.getSalary() >= 500_000).toList();
 
-        LinkedHashMap<String, Employee> employees2 = new LinkedHashMap<>();
+        bigSalarEmployees.forEach(employee -> System.out.println(employee.getName()+" - Rp."+ employee.getSalary()));
 
-        employees2.put("Andi", andi);
-        employees2.put("Budi", budi);
-        employees2.put("Citra", citra);
+        List<Employee> sortedEmployees = employees.stream().sorted(Comparator.comparingInt(Employee::getSalary).reversed()).toList();
 
-        System.out.println("\n\n========================");
-        System.out.println("(Map) Employee List: \n");        
+        System.out.println();
 
+        System.out.println("\nSORTED BIG SALARY");
 
+        sortedEmployees.forEach(employee->System.out.printf("%s - %d%n", employee.getName(), employee.getSalary()));
 
-        for(Employee employee: employees2.values()){
-            System.out.println(employee.getEmployeeID() + " - " + employee.getName() + " - " +employee.getSalary());
-        }
+        System.out.println();
+        System.out.println("\nEmployees name:");
 
+        List<String> getNameEmployee = employees.stream().map(Employee::getName).toList();
+        System.out.println(getNameEmployee);
 
-        Set<Employee> employees3 = new HashSet<>();
+        try {
+            Employee employee = findEmployee(employees, "KR002").orElseThrow(() -> new NoSuchElementException("Tidak ditemukan"));
 
-        employees3.add(andi);
-        employees3.add(budi);
-        employees3.add(citra);
-
-        System.out.println("========================");
-        System.out.println("(Set) Employee List: \n");        
-
-
-        for(Employee employee: employees3){
-            System.out.println(employee.getEmployeeID() + " - " + employee.getName() + " - " +employee.getSalary());
+            System.out.println("Menemukan: "+employee.getName());
+        } catch (NoSuchElementException e) {
+            System.out.println("Error: "+ e.getMessage());
         }
 
 
-        Queue<Employee> employees4 = new ArrayDeque<>();
-
-        employees4.offer(andi);
-        employees4.offer(budi);
-        employees4.offer(citra);
-
-        System.out.println("========================");
-        System.out.println("(Queue) Employee List: \n");
-
-        for(Employee employee: employees4){
-            System.out.println(employee.getEmployeeID() + " - " + employee.getName() + " - " +employee.getSalary());
-        }
-
+        
+        
+    }
+    
+    static Optional<Employee> findEmployee(List<Employee> employees, String id) {
+        return employees.stream().filter(employee -> employee.getEmployeeID().equals(id)).findFirst();
     }
 }
